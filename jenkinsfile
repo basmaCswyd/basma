@@ -1,0 +1,35 @@
+/*node {
+    stage('Checkout') {
+        checkout scm
+    }
+    stage('SonarQube Analysis') {
+        withSonarQubeEnv('SonarQube') {
+            sh "${tool 'SonarScanner'}/bin/sonar-scanner"
+        }
+    }
+}*/
+pipeline {
+    agent any
+    stages {
+        stage('Setup') {
+            steps {
+                sh 'echo "Initialisation de l\'environnement"'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'echo "Construction du projet"'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'echo "Tests unitaires"'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'echo "Déploiement"'
+            }
+        }
+    }
+}
