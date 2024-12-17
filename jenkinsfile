@@ -1,13 +1,4 @@
-/*node {
-    stage('Checkout') {
-        checkout scm
-    }
-    stage('SonarQube Analysis') {
-        withSonarQubeEnv('SonarQube') {
-            sh "${tool 'SonarScanner'}D:\sonarqube\sonarqube-24.12.0.100206\sonar-scanner-6.2.1.4610-windows-x64\bin\sqp_72e1550fca8085061441a1d14b6283fa3a27875c"  
-        }
-    }
-}*/
+
 pipeline {
     agent any
     stages {
@@ -31,5 +22,15 @@ pipeline {
                 sh 'echo "Déploiement"'
             }
         }
+node {
+    stage('Checkout') {
+        checkout scm
+    }
+    stage('SonarQube Analysis') {
+        withSonarQubeEnv('SonarQube') {
+            sh "${tool 'SonarScanner'}D:\sonarqube\sonarqube-24.12.0.100206\sonar-scanner-6.2.1.4610-windows-x64\bin\sqp_72e1550fca8085061441a1d14b6283fa3a27875c"  
+        }
+    }
+}
     }
 }
