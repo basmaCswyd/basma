@@ -38,13 +38,15 @@ node {
 */
 
 
+
+
 pipeline {
     agent any
 
     environment {
-        // Tokens pour GitHub et SonarQube
-        SONAR_TOKEN = 'sqp_086191eb9b06a2be0b6e18f2ff11c1795d5037e4'
+        // Définir les tokens pour GitHub et SonarQube
         GITHUB_TOKEN = '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'
+        SONAR_TOKEN = 'sqp_086191eb9b06a2be0b6e18f2ff11c1795d5037e4'
     }
 
     stages {
@@ -58,7 +60,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Installing dependencies...'
-                bat 'npm install' // Si vous travaillez sous Windows
+                bat 'npm install'
             }
         }
 
@@ -76,6 +78,8 @@ pipeline {
                     bat """
                     sonar-scanner.bat ^
                       -D"sonar.projectKey=basma-project" ^
+                      -D"sonar.projectName=Basma Project" ^
+                      -D"sonar.projectVersion=1.0" ^
                       -D"sonar.sources=." ^
                       -D"sonar.host.url=http://localhost:9000" ^
                       -D"sonar.token=${SONAR_TOKEN}" ^
