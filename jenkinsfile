@@ -1,4 +1,4 @@
-
+/*
 pipeline {
     agent any
     stages {
@@ -32,5 +32,71 @@ node {
         }
     }
 }
+    }
+}
+
+*/
+
+
+pipeline {
+    agent any
+
+    environment {
+        GIT_CREDENTIALS = 'github-token'
+        SONARQUBE_CREDENTIALS = 'sqp_b48fde0a3828a0ae0796ec827c0502c1f8295abf'
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                echo 'Cloning repository from GitHub...'
+                git branch: 'main', credentialsId: "${GIT_CREDENTIALS}", url: 'https://github.com/basmaCswyd/basma.git
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                echo 'Installing dependencies...'
+                bat 'npm install'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                echo 'Running tests...'
+                bat 'npm test'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                echo 'Running SonarQube analysis...'
+                withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
+                    bat """
+                    sonar-scanner.bat ^
+                      -D"sonar.projectKey=tp-node1" ^
+                      -D"sonar.sources=." ^
+                      -D"sonar.host.url=http://localhost:9000" ^
+                      -D"sonar.token=$SONAR_TOKEN" ^
+                      -D"sonar.nodejs.executable=C:/Program Files/nodejs/node.exe"
+                    """
+                }
+            }
+        }
+
+        stage('Deploy Application') {
+            steps {
+                echo 'Deploying the application...'
+                bat 'if not exist ..\\PROD\\REPO mkdir ..\\PROD\\REPO'
+                bat 'xcopy /E /I * ..\\PROD\\REPO\\'
+            }
+        }
+
+        stage('Run Application') {
+            steps {
+                echo 'Starting the application...'
+                bat 'node ../PROD/REPO/app.js'
+            }
+        }
     }
 }
