@@ -42,22 +42,23 @@ pipeline {
     agent any
 
     environment {
-        GIT_CREDENTIALS = 'github-token'
-        SONARQUBE_CREDENTIALS = 'sqp_b48fde0a3828a0ae0796ec827c0502c1f8295abf'
+        // Tokens pour GitHub et SonarQube
+        SONAR_TOKEN = 'sqp_086191eb9b06a2be0b6e18f2ff11c1795d5037e4'
+        GITHUB_TOKEN = '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'
     }
 
     stages {
         stage('Clone Repository') {
             steps {
                 echo 'Cloning repository from GitHub...'
-                git branch: 'main', credentialsId: "${GIT_CREDENTIALS}", url: 'https://github.com/basmaCswyd/basma.git
+                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/basmaCswyd/basma.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 echo 'Installing dependencies...'
-                bat 'npm install'
+                bat 'npm install' // Si vous travaillez sous Windows
             }
         }
 
@@ -71,13 +72,13 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo 'Running SonarQube analysis...'
-                withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
+                withSonarQubeEnv('SonarQube') { // Assurez-vous que 'SonarQube' est configuré dans Jenkins
                     bat """
                     sonar-scanner.bat ^
-                      -D"sonar.projectKey=tp-node1" ^
+                      -D"sonar.projectKey=basma-project" ^
                       -D"sonar.sources=." ^
                       -D"sonar.host.url=http://localhost:9000" ^
-                      -D"sonar.token=$SONAR_TOKEN" ^
+                      -D"sonar.token=${SONAR_TOKEN}" ^
                       -D"sonar.nodejs.executable=C:/Program Files/nodejs/node.exe"
                     """
                 }
@@ -97,6 +98,15 @@ pipeline {
                 echo 'Starting the application...'
                 bat 'node ../PROD/REPO/app.js'
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build and deployment successful!'
+        }
+        failure {
+            echo 'Build failed. Please check the logs for details.'
         }
     }
 }
